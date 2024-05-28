@@ -16,6 +16,10 @@ namespace Tagger
         {
             InitializeComponent();
         }
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            InitializeDatabases();
+        }
 
         private void InitializeDatabases()
         {
@@ -75,11 +79,6 @@ namespace Tagger
             }
 
             return "";
-        }
-
-        private void Form1_Load(object sender, EventArgs e)
-        {
-            InitializeDatabases();
         }
 
         private void toolStripProgressBar1_Click(object sender, EventArgs e)
