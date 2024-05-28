@@ -42,9 +42,9 @@
             filename = new ColumnHeader();
             tags = new ColumnHeader();
             location = new ColumnHeader();
-            fileSelect = new OpenFileDialog();
             fileType = new ColumnHeader();
             fileSize = new ColumnHeader();
+            fileSelect = new OpenFileDialog();
             menuStrip1.SuspendLayout();
             taggerStrip.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)previewBox).BeginInit();
@@ -89,6 +89,7 @@
             searchButton.TabIndex = 3;
             searchButton.Text = "Search";
             searchButton.UseVisualStyleBackColor = true;
+            searchButton.Click += searchButton_Click;
             // 
             // taggerStrip
             // 
@@ -147,12 +148,6 @@
             location.Text = "location";
             location.Width = 120;
             // 
-            // fileSelect
-            // 
-            fileSelect.FileName = "Select File(s)";
-            fileSelect.Multiselect = true;
-            fileSelect.FileOk += fileSelect_FileOk;
-            // 
             // fileType
             // 
             fileType.Text = "type";
@@ -160,6 +155,12 @@
             // fileSize
             // 
             fileSize.Text = "size";
+            // 
+            // fileSelect
+            // 
+            fileSelect.FileName = "Select File(s)";
+            fileSelect.Multiselect = true;
+            fileSelect.FileOk += fileSelect_FileOk;
             // 
             // Form1
             // 
