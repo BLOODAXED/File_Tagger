@@ -116,7 +116,7 @@ namespace Tagger
 
         }
 
-        private List<SearchElement> parseSearch(string searchString, Boolean mode = false) //false means OR
+        private List<SearchElement> parseSearch(string searchString)
         {
             const char tagSearch = '#';
             const char nameSearch = '$';
@@ -125,17 +125,36 @@ namespace Tagger
             List<SearchElement> searchElements = new List<SearchElement>();
 
             var doubleQuote = searchString.IndexOf("\"");
-            if (doubleQuote != -1)
+            while (doubleQuote != -1)
             {
                 var endQuote = searchString.IndexOf("\"", doubleQuote + 1);
                 if (endQuote != -1)
                 {
-                    var andSearch = searchString.Substring(doubleQuote, endQuote);
-                    searchString.Remove(doubleQuote, endQuote);
-                    searchElements.Concat(parseSearch(andSearch));
-                }
-            }
+                    var orSearch = searchString.Substring(doubleQuote, endQuote);
+                    var operand = searchString[doubleQuote-1];
+                    switch (operand) {
+                        case tagSearch:
+                            searchElements.Add(new SearchElement("tag", false, orSearch.Substring(1)));
+                            break;
+                        case nameSearch:
+                            searchElements.Add(new SearchElement("name", false, orSearch.Substring(1)));
+                            break;
+                        case typeSearch:
+                            searchElements.Add(new SearchElement("type", false, orSearch.Substring(1)));
+                            break;
+                        case sourceSearch:
+                            searchElements.Add(new SearchElement("source", false, orSearch.Substring(1)));
+                            break;
+                        default:
+                            toolStripStatusLabel1.Text = "Failed to Parse String";
+                            return null;
+                    }
 
+                    searchString.Remove(doubleQuote, endQuote);
+                }
+                doubleQuote = searchString.IndexOf("\"");
+            }
+            
             var splitted = searchString.Split(" ");
             foreach (var item in splitted)
             {
@@ -162,7 +181,22 @@ namespace Tagger
 
         public void performSearch(List<SearchElement> toSearch)
         {
+            string searchParams = "";
+            foreach (var item in toSearch)
+            {
+                if ()
+            }
+            using (var connection = new SqliteConnection("Data Source=tagger.sqlite;Mode=ReadOnly"))
+            {
+                var findFile = connection.CreateCommand();
+                findFile.CommandText = $"" +
+                    $"SELECT * from FILES INNER JOIN FILETAGS on FILES.id = FILETAGS.fileID" +
+                    $"WHERE ";
+                connection.Open();
+                long count = (long)findFile.ExecuteScalar();
 
+                return count > 0;
+            }
         }
 
         private void fileSelect_FileOk(object sender, System.ComponentModel.CancelEventArgs e)
