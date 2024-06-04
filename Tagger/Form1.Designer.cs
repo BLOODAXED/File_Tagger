@@ -28,10 +28,15 @@
         /// </summary>
         private void InitializeComponent()
         {
+            components = new System.ComponentModel.Container();
             Search = new TextBox();
             menuStrip1 = new MenuStrip();
             fileToolStripMenuItem = new ToolStripMenuItem();
             addFilesToolStripMenuItem = new ToolStripMenuItem();
+            addTagToolStripMenuItem = new ToolStripMenuItem();
+            removeTagToolStripMenuItem = new ToolStripMenuItem();
+            detailedViewToolStripMenuItem = new ToolStripMenuItem();
+            openInExplorerToolStripMenuItem = new ToolStripMenuItem();
             searchButton = new Button();
             taggerStrip = new StatusStrip();
             toolStripStatusLabel1 = new ToolStripStatusLabel();
@@ -44,23 +49,30 @@
             location = new ColumnHeader();
             fileType = new ColumnHeader();
             fileSize = new ColumnHeader();
+            rightClickMenu = new ContextMenuStrip(components);
+            addTagToolStripMenuItem1 = new ToolStripMenuItem();
+            removeTagToolStripMenuItem1 = new ToolStripMenuItem();
+            detailsToolStripMenuItem = new ToolStripMenuItem();
+            openInExplorerToolStripMenuItem1 = new ToolStripMenuItem();
             fileSelect = new OpenFileDialog();
             menuStrip1.SuspendLayout();
             taggerStrip.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)previewBox).BeginInit();
+            rightClickMenu.SuspendLayout();
             SuspendLayout();
             // 
             // Search
             // 
-            Search.Location = new Point(12, 35);
+            Search.Location = new Point(12, 36);
             Search.Name = "Search";
             Search.PlaceholderText = "hi";
             Search.Size = new Size(472, 23);
             Search.TabIndex = 1;
+            Search.KeyPress += Search_KeyPress;
             // 
             // menuStrip1
             // 
-            menuStrip1.Items.AddRange(new ToolStripItem[] { fileToolStripMenuItem });
+            menuStrip1.Items.AddRange(new ToolStripItem[] { fileToolStripMenuItem, addTagToolStripMenuItem, removeTagToolStripMenuItem, detailedViewToolStripMenuItem, openInExplorerToolStripMenuItem });
             menuStrip1.Location = new Point(0, 0);
             menuStrip1.Name = "menuStrip1";
             menuStrip1.Size = new Size(915, 24);
@@ -80,6 +92,30 @@
             addFilesToolStripMenuItem.Size = new Size(122, 22);
             addFilesToolStripMenuItem.Text = "Add Files";
             addFilesToolStripMenuItem.Click += addFilesToolStripMenuItem_Click;
+            // 
+            // addTagToolStripMenuItem
+            // 
+            addTagToolStripMenuItem.Name = "addTagToolStripMenuItem";
+            addTagToolStripMenuItem.Size = new Size(62, 20);
+            addTagToolStripMenuItem.Text = "Add Tag";
+            // 
+            // removeTagToolStripMenuItem
+            // 
+            removeTagToolStripMenuItem.Name = "removeTagToolStripMenuItem";
+            removeTagToolStripMenuItem.Size = new Size(83, 20);
+            removeTagToolStripMenuItem.Text = "Remove Tag";
+            // 
+            // detailedViewToolStripMenuItem
+            // 
+            detailedViewToolStripMenuItem.Name = "detailedViewToolStripMenuItem";
+            detailedViewToolStripMenuItem.Size = new Size(90, 20);
+            detailedViewToolStripMenuItem.Text = "Detailed View";
+            // 
+            // openInExplorerToolStripMenuItem
+            // 
+            openInExplorerToolStripMenuItem.Name = "openInExplorerToolStripMenuItem";
+            openInExplorerToolStripMenuItem.Size = new Size(107, 20);
+            openInExplorerToolStripMenuItem.Text = "Open In Explorer";
             // 
             // searchButton
             // 
@@ -124,6 +160,7 @@
             // fileView
             // 
             fileView.Columns.AddRange(new ColumnHeader[] { filename, tags, location, fileType, fileSize });
+            fileView.ContextMenuStrip = rightClickMenu;
             fileView.Location = new Point(12, 64);
             fileView.Name = "fileView";
             fileView.Size = new Size(553, 361);
@@ -131,6 +168,7 @@
             fileView.UseCompatibleStateImageBehavior = false;
             fileView.View = View.Details;
             fileView.SelectedIndexChanged += fileView_SelectedIndexChanged;
+            fileView.DoubleClick += fileView_DoubleClick;
             // 
             // filename
             // 
@@ -155,6 +193,40 @@
             // fileSize
             // 
             fileSize.Text = "size";
+            // 
+            // rightClickMenu
+            // 
+            rightClickMenu.Items.AddRange(new ToolStripItem[] { addTagToolStripMenuItem1, removeTagToolStripMenuItem1, detailsToolStripMenuItem, openInExplorerToolStripMenuItem1 });
+            rightClickMenu.Name = "contextMenuStrip1";
+            rightClickMenu.Size = new Size(181, 114);
+            rightClickMenu.Opening += contextMenuStrip1_Opening;
+            // 
+            // addTagToolStripMenuItem1
+            // 
+            addTagToolStripMenuItem1.Name = "addTagToolStripMenuItem1";
+            addTagToolStripMenuItem1.Size = new Size(180, 22);
+            addTagToolStripMenuItem1.Text = "Add Tag";
+            addTagToolStripMenuItem1.Click += addTagToolStripMenuItem1_Click;
+            // 
+            // removeTagToolStripMenuItem1
+            // 
+            removeTagToolStripMenuItem1.Name = "removeTagToolStripMenuItem1";
+            removeTagToolStripMenuItem1.Size = new Size(180, 22);
+            removeTagToolStripMenuItem1.Text = "Remove Tag";
+            removeTagToolStripMenuItem1.Click += removeTagToolStripMenuItem1_Click;
+            // 
+            // detailsToolStripMenuItem
+            // 
+            detailsToolStripMenuItem.Name = "detailsToolStripMenuItem";
+            detailsToolStripMenuItem.Size = new Size(180, 22);
+            detailsToolStripMenuItem.Text = "Details";
+            detailsToolStripMenuItem.Click += detailsToolStripMenuItem_Click;
+            // 
+            // openInExplorerToolStripMenuItem1
+            // 
+            openInExplorerToolStripMenuItem1.Name = "openInExplorerToolStripMenuItem1";
+            openInExplorerToolStripMenuItem1.Size = new Size(180, 22);
+            openInExplorerToolStripMenuItem1.Text = "Open In Explorer";
             // 
             // fileSelect
             // 
@@ -181,6 +253,7 @@
             taggerStrip.ResumeLayout(false);
             taggerStrip.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)previewBox).EndInit();
+            rightClickMenu.ResumeLayout(false);
             ResumeLayout(false);
             PerformLayout();
         }
@@ -203,5 +276,14 @@
         private ColumnHeader location;
         private ColumnHeader fileType;
         private ColumnHeader fileSize;
+        private ToolStripMenuItem addTagToolStripMenuItem;
+        private ToolStripMenuItem removeTagToolStripMenuItem;
+        private ToolStripMenuItem detailedViewToolStripMenuItem;
+        private ToolStripMenuItem openInExplorerToolStripMenuItem;
+        private ContextMenuStrip rightClickMenu;
+        private ToolStripMenuItem addTagToolStripMenuItem1;
+        private ToolStripMenuItem removeTagToolStripMenuItem1;
+        private ToolStripMenuItem detailsToolStripMenuItem;
+        private ToolStripMenuItem openInExplorerToolStripMenuItem1;
     }
 }

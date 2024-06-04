@@ -3,6 +3,7 @@ using System.Data;
 using System.Diagnostics;
 using System.Collections;
 using System.ComponentModel.DataAnnotations;
+using System.Runtime.CompilerServices;
 
 
 namespace Tagger
@@ -27,10 +28,10 @@ namespace Tagger
             {
                 var createTables = connection.CreateCommand();
                 connection.Open();
-                createTables.CommandText = "CREATE TABLE IF NOT EXISTS FILES(name TEXT,location TEXT," +
-                    "type TEXT, size INTEGER, sources TEXT);" +
+                createTables.CommandText = "CREATE TABLE IF NOT EXISTS FILES(id INTEGER, name TEXT,location TEXT," +
+                    "type TEXT, size INTEGER, sources TEXT, PRIMARY KEY(id));" +
                     "CREATE TABLE IF NOT EXISTS FILETAGS(fileID INTEGER, tagID);" +
-                    "CREATE TABLE IF NOT EXISTS TAGS(name TEXT, description TEXT, count INTEGER)";
+                    "CREATE TABLE IF NOT EXISTS TAGS(id INTEGER, tasgName TEXT, description TEXT, count INTEGER, PRIMARY KEY(id))";
                 createTables.ExecuteNonQuery();
             }
         }
@@ -131,10 +132,11 @@ namespace Tagger
                 if (endQuote != -1)
                 {
                     var orSearch = searchString.Substring(doubleQuote, endQuote);
-                    var operand = searchString[doubleQuote-1];
-                    switch (operand) {
+                    var operand = searchString[doubleQuote - 1];
+                    switch (operand)
+                    {
                         case tagSearch:
-                            searchElements.Add(new SearchElement("tag", false, orSearch.Substring(1)));
+                            searchElements.Add(new SearchElement("tagName", false, orSearch.Substring(1)));
                             break;
                         case nameSearch:
                             searchElements.Add(new SearchElement("name", false, orSearch.Substring(1)));
@@ -146,33 +148,42 @@ namespace Tagger
                             searchElements.Add(new SearchElement("source", false, orSearch.Substring(1)));
                             break;
                         default:
-                            toolStripStatusLabel1.Text = "Failed to Parse String";
-                            return null;
+                            searchElements.Add(new SearchElement("name", false, orSearch.Substring(0)));
+                            break;
                     }
 
                     searchString.Remove(doubleQuote, endQuote);
                 }
+                else
+                {
+                    toolStripStatusLabel1.Text = "Failed to Parse String.  Missing close quote";
+                    return null;
+                }
                 doubleQuote = searchString.IndexOf("\"");
             }
-            
+
             var splitted = searchString.Split(" ");
             foreach (var item in splitted)
             {
                 if (item.IndexOf(tagSearch) != -1)
                 {
-                    searchElements.Add(new SearchElement("tag", mode, item.Substring(1)));
+                    searchElements.Add(new SearchElement("tagName", true, item.Substring(1)));
                 }
                 else if (item.IndexOf(nameSearch) != -1)
                 {
-                    searchElements.Add(new SearchElement("name", mode, item.Substring(1)));
+                    searchElements.Add(new SearchElement("name", true, item.Substring(1)));
                 }
                 else if (item.IndexOf(typeSearch) != -1)
                 {
-                    searchElements.Add(new SearchElement("type", mode, item.Substring(1)));
+                    searchElements.Add(new SearchElement("type", true, item.Substring(1)));
                 }
                 else if (item.IndexOf(sourceSearch) != -1)
                 {
-                    searchElements.Add(new SearchElement("source", mode, item.Substring(1)));
+                    searchElements.Add(new SearchElement("source", true, item.Substring(1)));
+                }
+                else
+                {
+                    searchElements.Add(new SearchElement("name", true, item.Substring(0)));
                 }
             }
 
@@ -184,18 +195,98 @@ namespace Tagger
             string searchParams = "";
             foreach (var item in toSearch)
             {
-                if ()
+                if (item.mode == false)
+                {
+                    if (item.type == "tag")
+                    {
+                        if (searchParams[^5..] != "WHERE")
+                        {
+                            searchParams += $@"WHERE {item.type} IS '{item.value}'";
+                        }
+                        else
+                        {
+                            searchParams += $@"OR WHERE {item.type} IS '{item.value}'";
+                        }
+                    }
+                    else
+                    {
+                        if (searchParams[^5..] != "WHERE")
+                        {
+                            searchParams += $@"WHERE {item.type} LIKE '%{item.value}%'";
+                        }
+                        else
+                        {
+                            searchParams += $@"OR WHERE {item.type} LIKE '%{item.value}%'";
+                        }
+                    }
+                }
+                else
+                {
+                    if (item.type == "tag")
+                    {
+                        if (searchParams.Length < 5 || searchParams[^5..] != "WHERE")
+                        {
+                            searchParams += $@"WHERE {item.type} IS '{item.value}'";
+                        }
+                        else
+                        {
+                            searchParams += $@"AND WHERE {item.type} IS '{item.value}'";
+                        }
+                    }
+                    else
+                    {
+                        if (searchParams.Length < 5 || searchParams[^5..] != "WHERE")
+                        {
+                            searchParams += $@"WHERE {item.type} LIKE '%{item.value}%'";
+                        }
+                        else
+                        {
+                            searchParams += $@"AND WHERE {item.type} LIKE '%{item.value}%'";
+                        }
+                    }
+                }
             }
             using (var connection = new SqliteConnection("Data Source=tagger.sqlite;Mode=ReadOnly"))
             {
                 var findFile = connection.CreateCommand();
                 findFile.CommandText = $"" +
-                    $"SELECT * from FILES INNER JOIN FILETAGS on FILES.id = FILETAGS.fileID" +
-                    $"WHERE ";
-                connection.Open();
-                long count = (long)findFile.ExecuteScalar();
+                    $"SELECT name, GROUP_CONCAT(tagName), location, type, size " +
+                    $"from FILES LEFT JOIN FILETAGS on FILES.id = FILETAGS.fileID " +
+                    $"LEFT JOIN TAGS on FILETAGS.tagID = TAGS.id" +
+                    $" " + searchParams +
+                    $"GROUP BY FILES.id";
 
-                return count > 0;
+                MessageBox.Show(findFile.CommandText);
+                connection.Open();
+
+                List<string[]> items = new List<string[]>();
+                using (var reader = findFile.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        items.Add([SafeGetString(reader, 0), SafeGetString(reader, 1),
+                            SafeGetString(reader, 2), SafeGetString(reader, 3), SafeGetString(reader, 4)]);
+                        updateFileListView(items);
+                    }
+                }
+            }
+        }
+
+        public static string SafeGetString(SqliteDataReader reader, int column)
+        {
+            if (!reader.IsDBNull(column))
+            {
+                return reader.GetString(column);
+            }
+            return string.Empty;
+        }
+
+        public void updateFileListView(List<string[]> items)
+        {
+            fileView.Items.Clear();
+            foreach (string[] item in items)
+            {
+                fileView.Items.Add(new ListViewItem(item));
             }
         }
 
@@ -222,13 +313,72 @@ namespace Tagger
                 toolStripStatusLabel1.Text = "Failed to search.  No valid search string provided";
             }
         }
+
+        private void Search_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (e.KeyChar == (char)Keys.Enter)
+            {
+                searchButton_Click((object)sender, e);
+            }
+        }
+
+        private void fileView_DoubleClick(object sender, EventArgs e)
+        {
+            MessageBox.Show($"clicked " + fileView.SelectedItems[0].Text);
+        }
+
+        /*private void fileView_MouseDown(object sender, EventArgs e)
+        {
+            switch (e.)
+            {
+                case MouseButtons.Right:
+                    {
+                        rightClickMenu.Show(this, new Point(e.X, e.Y));//places the menu at the pointer position
+                    }
+                    break;
+            }
+        }*/
+
+        private void contextMenuStrip1_Opening(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+
+        }
+
+        private void addTagToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void removeTagToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void detailsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void openInExplorerToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        public void addTagToItem()
+        {
+
+        }
+
     }
 
     public class SearchElement
     {
-        string type;
-        Boolean mode; //false means OR
-        string value;
+        public string type
+        { get; set; }
+        public Boolean mode //false means OR
+        { get; set; }
+        public string value
+        { get; set; }
 
         public SearchElement(string type, bool mode, string value)
         {
