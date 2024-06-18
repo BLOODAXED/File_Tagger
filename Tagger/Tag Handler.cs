@@ -51,7 +51,7 @@ namespace Tagger
                 {
                     while (reader.Read())
                     {
-                        tagList.Add(new Tag(SafeGetString(reader, 0), SafeGetString(reader, 1)));
+                        tagList.Add(new Tag(Functions.SafeGetString(reader, 0), Functions.SafeGetString(reader, 1)));
                     }
                 }
                 foreach (var tag in tagList)
@@ -78,15 +78,6 @@ namespace Tagger
 
                 return count;
             }
-        }
-
-        public static string SafeGetString(SqliteDataReader reader, int column)
-        {
-            if (!reader.IsDBNull(column))
-            {
-                return reader.GetString(column);
-            }
-            return string.Empty;
         }
     }
 

@@ -5,7 +5,6 @@ using System.Collections;
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.CompilerServices;
 
-
 namespace Tagger
 {
 
@@ -264,21 +263,12 @@ namespace Tagger
                 {
                     while (reader.Read())
                     {
-                        items.Add([SafeGetString(reader, 0), SafeGetString(reader, 1),
-                            SafeGetString(reader, 2), SafeGetString(reader, 3), SafeGetString(reader, 4)]);
+                        items.Add([Functions.SafeGetString(reader, 0), Functions.SafeGetString(reader, 1),
+                            Functions.SafeGetString(reader, 2), Functions.SafeGetString(reader, 3), Functions.SafeGetString(reader, 4)]);
                         updateFileListView(items);
                     }
                 }
             }
-        }
-
-        public static string SafeGetString(SqliteDataReader reader, int column)
-        {
-            if (!reader.IsDBNull(column))
-            {
-                return reader.GetString(column);
-            }
-            return string.Empty;
         }
 
         public void updateFileListView(List<string[]> items)
