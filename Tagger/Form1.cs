@@ -336,7 +336,8 @@ namespace Tagger
 
         private void addTagToolStripMenuItem1_Click(object sender, EventArgs e)
         {
-
+            AddTag form = new AddTag(fileView.SelectedItems[0].Text);
+            form.ShowDialog();
         }
 
         private void removeTagToolStripMenuItem1_Click(object sender, EventArgs e)

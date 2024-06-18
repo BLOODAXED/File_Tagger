@@ -42,6 +42,7 @@
             tagSearch.Name = "tagSearch";
             tagSearch.Size = new Size(205, 23);
             tagSearch.TabIndex = 0;
+            tagSearch.TextChanged += tagSearch_TextChanged;
             // 
             // tagDescription
             // 

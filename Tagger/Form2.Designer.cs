@@ -43,6 +43,7 @@
             fileNameView.Name = "fileNameView";
             fileNameView.Size = new Size(165, 23);
             fileNameView.TabIndex = 0;
+            fileNameView.TextChanged += fileNameView_TextChanged;
             // 
             // fileSizeView
             // 

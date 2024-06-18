@@ -16,5 +16,10 @@ namespace Tagger
         {
             InitializeComponent();
         }
+
+        private void fileNameView_TextChanged(object sender, EventArgs e)
+        {
+
+        }
     }
 }

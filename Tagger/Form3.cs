@@ -16,5 +16,10 @@ namespace Tagger
         {
             InitializeComponent();
         }
+
+        private void tagSearch_TextChanged(object sender, EventArgs e)
+        {
+
+        }
     }
 }
