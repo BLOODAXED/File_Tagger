@@ -11,7 +11,7 @@ namespace Tagger
     public class Tag_Handler
     {
 
-        public Tag GetTag(string searchTerm)
+        public static Tag GetTag(string searchTerm)
         {
             using (var connection = new SqliteConnection("Data Source=tagger.sqlite;Mode=ReadOnly"))
             {
@@ -35,7 +35,7 @@ namespace Tagger
         }
 
 
-        public List<Tag> GetAllTags()
+        public static List<Tag> GetAllTags()
         {
             List<Tag> tagList = new List<Tag>();
             using (var connection = new SqliteConnection("Data Source=tagger.sqlite;Mode=ReadOnly"))
@@ -62,7 +62,7 @@ namespace Tagger
             return tagList;
         }
 
-        public long CountTag(string searchTerm)
+        public static long CountTag(string searchTerm)
         {
             using (var connection = new SqliteConnection("Data Source=tagger.sqlite;Mode=ReadOnly"))
             {
@@ -80,11 +80,12 @@ namespace Tagger
             }
         }
 
-        public void AddTagToFile(string fileName, string tagName)
+        public static void AddTagToFile(string fileName, string tagName)
         {
-            Int32 tag = -1;
-            Int32 file = -1;
-            using (var connection = new SqliteConnection("Data Source=tagger.sqlite;Mode=ReadWriteCreate"))
+            MessageBox.Show(fileName + " " + tagName);
+            Int64 tag = -1;
+            Int64 file = -1;
+            using (var connection = new SqliteConnection("Data Source=tagger.sqlite;Mode=ReadOnly"))
             {
                 var findTag = connection.CreateCommand();
                 findTag.CommandText = $"" +
@@ -102,7 +103,7 @@ namespace Tagger
                     }
                 }
                 var findFile = connection.CreateCommand();
-                findTag.CommandText = $"" +
+                findFile.CommandText = $"" +
                     $"SELECT id " +
                     $"from FILES " +
                     $"WHERE name IS '{fileName}'";
@@ -115,6 +116,7 @@ namespace Tagger
                     }
                 }
             }
+
             if (file != -1)
             {
                 if (tag == -1)
@@ -133,36 +135,38 @@ namespace Tagger
                     addTag.CommandText = $"" +
                         $"INSERT INTO FILETAGS " +
                         $"(fileID, tagID)" +
-                        $"VALUES ('{file}, {tag}')";
+                        $"VALUES ('{file}', '{tag}')";
                     addTag.ExecuteNonQuery();
 
                 }
 
             }
+            else
+            {
+                MessageBox.Show("Failed to add new tag");
+                return;
+            }
         }
 
-        public Int32 CreateTag(string tagName, string description = "")
+        public static Int64 CreateTag(string tagName, string description = "")
         {
-            Int32 newId = -1;
+            MessageBox.Show("creating new tag");
+            Int64 newId = -1;
             using (var connection = new SqliteConnection("Data Source=tagger.sqlite;Mode=ReadWriteCreate"))
             {
                 var newTag = connection.CreateCommand();
                 newTag.CommandText = $"" +
                     $"INSERT INTO TAGS" +
                     $"(tagName, description)" +
-                    $"VALUES ({tagName}, {description});" +
-                    $"SELECT last_insertrowid() LIMIT 1";
+                    $"VALUES ('{tagName}', '{description}');" +
+                    $"SELECT last_insert_rowid() LIMIT 1";
 
+                MessageBox.Show(newTag.CommandText);
                 connection.Open();
-
-                using (var reader = newTag.ExecuteReader())
-                {
-                    if (reader.Read())
-                    {
-                        newId = (Int32)reader.GetInt32(0);
-                    }
-                }
+                
+                newId = (Int64)newTag.ExecuteScalar();
             }
+
             return newId;
         }
 
