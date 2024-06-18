@@ -66,7 +66,7 @@ namespace Tagger
         {
             using (var connection = new SqliteConnection("Data Source=tagger.sqlite;Mode=ReadOnly"))
             {
-                var countTags = connection.CreateCommand(); 
+                var countTags = connection.CreateCommand();
                 countTags.CommandText = $"" +
                     $"Select Count(tagID) From FILETAGS JOIN TAGS " +
                     $"on TAGS.id = FILETAGS.tagID " +
@@ -79,24 +79,111 @@ namespace Tagger
                 return count;
             }
         }
-    }
 
-    public class Tag
-    {
-        public string name
-        { get; set; }
-        public string description
-        { get; set; }
-        public long count
-        { get; set; }
-
-        public Tag(string name, string description, long count=0)
+        public void AddTagToFile(string fileName, string tagName)
         {
-            this.name = name;
-            this.description = description;
-            this.count = count;
-        }
-    }
+            Int32 tag = -1;
+            Int32 file = -1;
+            using (var connection = new SqliteConnection("Data Source=tagger.sqlite;Mode=ReadWriteCreate"))
+            {
+                var findTag = connection.CreateCommand();
+                findTag.CommandText = $"" +
+                    $"SELECT id " +
+                    $"from TAGS " +
+                    $"WHERE tagName IS '{tagName}'";
 
+                connection.Open();
+
+                using (var reader = findTag.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        tag = reader.GetInt32(0);
+                    }
+                }
+                var findFile = connection.CreateCommand();
+                findTag.CommandText = $"" +
+                    $"SELECT id " +
+                    $"from FILES " +
+                    $"WHERE name IS '{fileName}'";
+
+                using (var reader = findFile.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        file = reader.GetInt32(0);
+                    }
+                }
+            }
+            if (file != -1)
+            {
+                if (tag == -1)
+                {
+                    tag = CreateTag(tagName);
+                    if (tag == -1)
+                    {
+                        MessageBox.Show("Failed to add new tag");
+                        return;
+                    }
+                }
+                using (var connection = new SqliteConnection("Data Source=tagger.sqlite;Mode=ReadWriteCreate"))
+                {
+                    connection.Open();
+                    var addTag = connection.CreateCommand();
+                    addTag.CommandText = $"" +
+                        $"INSERT INTO FILETAGS " +
+                        $"(fileID, tagID)" +
+                        $"VALUES ('{file}, {tag}')";
+                    addTag.ExecuteNonQuery();
+
+                }
+
+            }
+        }
+
+        public Int32 CreateTag(string tagName, string description = "")
+        {
+            Int32 newId = -1;
+            using (var connection = new SqliteConnection("Data Source=tagger.sqlite;Mode=ReadWriteCreate"))
+            {
+                var newTag = connection.CreateCommand();
+                newTag.CommandText = $"" +
+                    $"INSERT INTO TAGS" +
+                    $"(tagName, description)" +
+                    $"VALUES ({tagName}, {description});" +
+                    $"SELECT last_insertrowid() LIMIT 1";
+
+                connection.Open();
+
+                using (var reader = newTag.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        newId = (Int32)reader.GetInt32(0);
+                    }
+                }
+            }
+            return newId;
+        }
+
+        public class Tag
+        {
+            public string name
+            { get; set; }
+            public string description
+            { get; set; }
+            public long count
+            { get; set; }
+
+            public Tag(string name, string description, long count = 0)
+            {
+                this.name = name;
+                this.description = description;
+                this.count = count;
+            }
+        }
+
+
+    }
 
 }
