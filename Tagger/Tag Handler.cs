@@ -62,6 +62,35 @@ namespace Tagger
             return tagList;
         }
 
+        public static List<Tag> GetAllTagsOnFile(string file)
+        {
+            List<Tag> tagList = new List<Tag>();
+            using (var connection = new SqliteConnection("Data Source=tagger.sqlite;Mode=ReadOnly"))
+            {
+                var findTag = connection.CreateCommand();
+                findTag.CommandText = $"" +
+                    $"SELECT tagName from TAGS " +
+                    $"JOIN FILETAGS on FILETAGS.tagID = TAGS.id " +
+                    $"JOIN FILES on FILETAGS.fileID = FILES.id " +
+                    $"WHERE FILES.name IS '{file}'";
+
+                connection.Open();
+
+                using (var reader = findTag.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        tagList.Add(new Tag(Functions.SafeGetString(reader, 0)));
+                    }
+                }
+                foreach (var tag in tagList)
+                {
+                    tag.count = CountTag(tag.name);
+                }
+            }
+            return tagList;
+        }
+
         public static long CountTag(string searchTerm)
         {
             using (var connection = new SqliteConnection("Data Source=tagger.sqlite;Mode=ReadOnly"))
@@ -179,7 +208,7 @@ namespace Tagger
             public long count
             { get; set; }
 
-            public Tag(string name, string description, long count = 0)
+            public Tag(string name, string description = "", long count = 0)
             {
                 this.name = name;
                 this.description = description;
