@@ -59,6 +59,7 @@
             removeButton.TabIndex = 2;
             removeButton.Text = "Remove";
             removeButton.UseVisualStyleBackColor = true;
+            removeButton.Click += removeButton_Click;
             // 
             // Remove_Tag
             // 

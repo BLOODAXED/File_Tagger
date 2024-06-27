@@ -255,7 +255,6 @@ namespace Tagger
                     $" " + searchParams +
                     $"GROUP BY FILES.id";
 
-                MessageBox.Show(findFile.CommandText);
                 connection.Open();
 
                 List<string[]> items = new List<string[]>();

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using System.Threading.Tasks;
+using static Tagger.Tag_Handler;
 
 namespace Tagger
 {
@@ -91,6 +92,49 @@ namespace Tagger
             return tagList;
         }
 
+        public static void RemoveTagByFileName(string fileName, List<Int32> tagIds)
+        {
+            var fileId = Functions.getFileId(fileName);
+            using (var connection = new SqliteConnection("Data Source=tagger.sqlite;Mode=ReadWriteCreate"))
+            {
+                connection.Open();
+                var removeTag = connection.CreateCommand();
+                foreach (var tag in tagIds) {
+                    removeTag.CommandText = $"" +
+                        $"DELETE from FILETAGS " +
+                        $"WHERE fileId IS '{fileId}' AND tagID IS '{tag}'";
+
+                    removeTag.ExecuteNonQuery();
+                }
+
+            }
+        }
+
+        public static Int32 GetTagIdByName(string tagName)
+        {
+            Int32 id = -1;
+            using (var connection = new SqliteConnection("Data Source=tagger.sqlite;Mode=ReadOnly"))
+            {
+                var findTag = connection.CreateCommand();
+                findTag.CommandText = $"" +
+                    $"SELECT id from TAGS " +
+                    $"WHERE tagName IS '{tagName}'";
+
+                connection.Open();
+
+                findTag.ExecuteScalar();
+
+                using (var reader = findTag.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        id = reader.GetInt32(0);
+                    }
+                }
+            }
+            return id;
+        }
+
         public static long CountTag(string searchTerm)
         {
             using (var connection = new SqliteConnection("Data Source=tagger.sqlite;Mode=ReadOnly"))
@@ -111,7 +155,6 @@ namespace Tagger
 
         public static void AddTagToFile(string fileName, string tagName)
         {
-            MessageBox.Show(fileName + " " + tagName);
             Int64 tag = -1;
             Int64 file = -1;
             using (var connection = new SqliteConnection("Data Source=tagger.sqlite;Mode=ReadOnly"))
@@ -190,7 +233,6 @@ namespace Tagger
                     $"VALUES ('{tagName}', '{description}');" +
                     $"SELECT last_insert_rowid() LIMIT 1";
 
-                MessageBox.Show(newTag.CommandText);
                 connection.Open();
                 
                 newId = (Int64)newTag.ExecuteScalar();
