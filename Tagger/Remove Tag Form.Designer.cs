@@ -44,6 +44,7 @@
             // 
             // tagList
             // 
+            tagList.CheckOnClick = true;
             tagList.FormattingEnabled = true;
             tagList.Location = new Point(12, 41);
             tagList.Name = "tagList";

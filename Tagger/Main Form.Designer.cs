@@ -116,6 +116,7 @@
             openInExplorerToolStripMenuItem.Name = "openInExplorerToolStripMenuItem";
             openInExplorerToolStripMenuItem.Size = new Size(107, 20);
             openInExplorerToolStripMenuItem.Text = "Open In Explorer";
+            openInExplorerToolStripMenuItem.Click += openInExplorerToolStripMenuItem_Click;
             // 
             // searchButton
             // 
@@ -227,6 +228,7 @@
             openInExplorerToolStripMenuItem1.Name = "openInExplorerToolStripMenuItem1";
             openInExplorerToolStripMenuItem1.Size = new Size(180, 22);
             openInExplorerToolStripMenuItem1.Text = "Open In Explorer";
+            openInExplorerToolStripMenuItem1.Click += openInExplorerToolStripMenuItem1_Click_1;
             // 
             // fileSelect
             // 

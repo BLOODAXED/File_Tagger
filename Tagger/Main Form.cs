@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Collections;
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.CompilerServices;
+using System.Text.RegularExpressions;
 
 namespace Tagger
 {
@@ -352,7 +353,10 @@ namespace Tagger
 
         private void openInExplorerToolStripMenuItem1_Click(object sender, EventArgs e)
         {
-
+            var location = fileView.SelectedItems[0].SubItems[2].Text;
+            Regex regex = new Regex(@".*\\");
+            Match match = regex.Match(location);
+            Process.Start("explorer.exe", match.Value);
         }
 
         public void addTagToItem()
@@ -360,6 +364,18 @@ namespace Tagger
 
         }
 
+        private void openInExplorerToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void openInExplorerToolStripMenuItem1_Click_1(object sender, EventArgs e)
+        {
+            var location = fileView.SelectedItems[0].SubItems[2].Text;
+            Regex regex = new Regex(@".*\\");
+            Match match = regex.Match(location);
+            Process.Start("explorer.exe", match.Value);
+        }
     }
 
     public class SearchElement
