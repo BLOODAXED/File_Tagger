@@ -250,7 +250,7 @@ namespace Tagger
             {
                 var findFile = connection.CreateCommand();
                 findFile.CommandText = $"" +
-                    $"SELECT name, GROUP_CONCAT(tagName), location, type, size " +
+                    $"SELECT name, GROUP_CONCAT(tagName), location, type, size, files.id " +
                     $"from FILES LEFT JOIN FILETAGS on FILES.id = FILETAGS.fileID " +
                     $"LEFT JOIN TAGS on FILETAGS.tagID = TAGS.id" +
                     $" " + searchParams +
@@ -263,7 +263,7 @@ namespace Tagger
                 {
                     while (reader.Read())
                     {
-                        items.Add([Functions.SafeGetString(reader, 0), Functions.SafeGetString(reader, 1),
+                        items.Add([Functions.SafeGetString(reader, 5), Functions.SafeGetString(reader, 0), Functions.SafeGetString(reader, 1),
                             Functions.SafeGetString(reader, 2), Functions.SafeGetString(reader, 3), Functions.SafeGetString(reader, 4)]);
                         updateFileListView(items);
                     }
@@ -314,20 +314,8 @@ namespace Tagger
 
         private void fileView_DoubleClick(object sender, EventArgs e)
         {
-            MessageBox.Show($"clicked " + fileView.SelectedItems[0].Text);
+            MessageBox.Show($"clicked " + fileView.SelectedItems[0].SubItems[1].Text);
         }
-
-        /*private void fileView_MouseDown(object sender, EventArgs e)
-        {
-            switch (e.)
-            {
-                case MouseButtons.Right:
-                    {
-                        rightClickMenu.Show(this, new Point(e.X, e.Y));//places the menu at the pointer position
-                    }
-                    break;
-            }
-        }*/
 
         private void contextMenuStrip1_Opening(object sender, System.ComponentModel.CancelEventArgs e)
         {
@@ -336,13 +324,13 @@ namespace Tagger
 
         private void addTagToolStripMenuItem1_Click(object sender, EventArgs e)
         {
-            AddTag form = new AddTag(fileView.SelectedItems[0].Text);
+            AddTag form = new AddTag(fileView.SelectedItems[0].SubItems[1].Text, fileView.SelectedItems[0].SubItems[0].Text);
             form.ShowDialog();
         }
 
         private void removeTagToolStripMenuItem1_Click(object sender, EventArgs e)
         {
-            Remove_Tag form = new Remove_Tag(fileView.SelectedItems[0].Text);
+            Remove_Tag form = new Remove_Tag(fileView.SelectedItems[0].SubItems[1].Text, fileView.SelectedItems[0].SubItems[0].Text);
             form.ShowDialog();
         }
 
@@ -353,7 +341,7 @@ namespace Tagger
 
         private void openInExplorerToolStripMenuItem1_Click(object sender, EventArgs e)
         {
-            var location = fileView.SelectedItems[0].SubItems[2].Text;
+            var location = fileView.SelectedItems[0].SubItems[3].Text;
             Regex regex = new Regex(@".*\\");
             Match match = regex.Match(location);
             Process.Start("explorer.exe", match.Value);
@@ -371,7 +359,7 @@ namespace Tagger
 
         private void openInExplorerToolStripMenuItem1_Click_1(object sender, EventArgs e)
         {
-            var location = fileView.SelectedItems[0].SubItems[2].Text;
+            var location = fileView.SelectedItems[0].SubItems[3].Text;
             Regex regex = new Regex(@".*\\");
             Match match = regex.Match(location);
             Process.Start("explorer.exe", match.Value);

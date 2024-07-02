@@ -44,6 +44,7 @@
             backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
             previewBox = new PictureBox();
             fileView = new ListView();
+            fileId = new ColumnHeader();
             filename = new ColumnHeader();
             tags = new ColumnHeader();
             location = new ColumnHeader();
@@ -160,8 +161,9 @@
             // 
             // fileView
             // 
-            fileView.Columns.AddRange(new ColumnHeader[] { filename, tags, location, fileType, fileSize });
+            fileView.Columns.AddRange(new ColumnHeader[] { fileId, filename, tags, location, fileType, fileSize });
             fileView.ContextMenuStrip = rightClickMenu;
+            fileView.FullRowSelect = true;
             fileView.Location = new Point(12, 64);
             fileView.Name = "fileView";
             fileView.Size = new Size(553, 361);
@@ -171,62 +173,73 @@
             fileView.SelectedIndexChanged += fileView_SelectedIndexChanged;
             fileView.DoubleClick += fileView_DoubleClick;
             // 
+            // fileId
+            // 
+            fileId.DisplayIndex = 5;
+            fileId.Text = "fileId";
+            fileId.Width = 0;
+            // 
             // filename
             // 
+            filename.DisplayIndex = 0;
             filename.Tag = "name";
             filename.Text = "Name";
             filename.Width = 120;
             // 
             // tags
             // 
+            tags.DisplayIndex = 1;
             tags.Text = "tags";
             tags.Width = 120;
             // 
             // location
             // 
+            location.DisplayIndex = 2;
             location.Text = "location";
             location.Width = 120;
             // 
             // fileType
             // 
+            fileType.DisplayIndex = 3;
             fileType.Text = "type";
             // 
             // fileSize
             // 
+            fileSize.DisplayIndex = 4;
             fileSize.Text = "size";
             // 
             // rightClickMenu
             // 
             rightClickMenu.Items.AddRange(new ToolStripItem[] { addTagToolStripMenuItem1, removeTagToolStripMenuItem1, detailsToolStripMenuItem, openInExplorerToolStripMenuItem1 });
             rightClickMenu.Name = "contextMenuStrip1";
-            rightClickMenu.Size = new Size(181, 114);
+            rightClickMenu.Size = new Size(163, 92);
             rightClickMenu.Opening += contextMenuStrip1_Opening;
             // 
             // addTagToolStripMenuItem1
             // 
             addTagToolStripMenuItem1.Name = "addTagToolStripMenuItem1";
-            addTagToolStripMenuItem1.Size = new Size(180, 22);
+            addTagToolStripMenuItem1.Size = new Size(162, 22);
             addTagToolStripMenuItem1.Text = "Add Tag";
             addTagToolStripMenuItem1.Click += addTagToolStripMenuItem1_Click;
             // 
             // removeTagToolStripMenuItem1
             // 
             removeTagToolStripMenuItem1.Name = "removeTagToolStripMenuItem1";
-            removeTagToolStripMenuItem1.Size = new Size(180, 22);
+            removeTagToolStripMenuItem1.Size = new Size(162, 22);
             removeTagToolStripMenuItem1.Text = "Remove Tag";
             removeTagToolStripMenuItem1.Click += removeTagToolStripMenuItem1_Click;
             // 
             // detailsToolStripMenuItem
             // 
             detailsToolStripMenuItem.Name = "detailsToolStripMenuItem";
-            detailsToolStripMenuItem.Size = new Size(180, 22);
+            detailsToolStripMenuItem.Size = new Size(162, 22);
             detailsToolStripMenuItem.Text = "Details";
             detailsToolStripMenuItem.Click += detailsToolStripMenuItem_Click;
             // 
             // openInExplorerToolStripMenuItem1
             // 
             openInExplorerToolStripMenuItem1.Name = "openInExplorerToolStripMenuItem1";
-            openInExplorerToolStripMenuItem1.Size = new Size(180, 22);
+            openInExplorerToolStripMenuItem1.Size = new Size(162, 22);
             openInExplorerToolStripMenuItem1.Text = "Open In Explorer";
             openInExplorerToolStripMenuItem1.Click += openInExplorerToolStripMenuItem1_Click_1;
             // 
@@ -287,5 +300,6 @@
         private ToolStripMenuItem removeTagToolStripMenuItem1;
         private ToolStripMenuItem detailsToolStripMenuItem;
         private ToolStripMenuItem openInExplorerToolStripMenuItem1;
+        private ColumnHeader fileId;
     }
 }
